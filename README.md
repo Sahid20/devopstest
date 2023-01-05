@@ -47,7 +47,22 @@ Inbound Rules
 
 ### Step-2: Create KeyPair to Connect EC2 instancesWe 
 - &nbsp; Now, I will create a Keypair to connect our instances via SSH.
+![key_pair](https://user-images.githubusercontent.com/73986565/210902132-a44f8a4a-7947-46c6-9820-036dc1500974.PNG)
 ### Step-3: Provision Backend EC2 instances with UserData script
+#### DB Instance:
+- &nbsp;Create DB instance with below details.We will also add Inbound rule to vprofile-backend-SG for SSH on port 22 from MyIP to be able to connect our db instance via SSH.
+Name: vprofile-db01
+Project: vprofile
+AMI: Centos 7
+InstanceType: t2.micro
+SecGrp: vprofile-backend-SG
+UserData: mysql.sh
+- &nbsp;Once our instance is ready, we can SSH into the server and check if userdata script is executed.We can also check status of mariadb
+ssh -i vprofile-prod-key.pem centos@<public_ip_of_instance>
+sudo -i 
+curl http://169.254.169.254/latest/user-data
+systemctl status mariadb
+
 ### Step-4: Create Private Hosted Zone in Route53
 ### Step-5: Provision Application EC2 instances with UserData script
 ### Step-6: Create Artifact Locally with MAVEN
