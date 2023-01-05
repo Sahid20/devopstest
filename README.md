@@ -1,3 +1,14 @@
 # Lift&Shift Application Workflow to AWS
-- &nbsp; hi
-- ; hi
+## Prerequisites:
+
+- &nbsp; AWS Account 
+
+- &nbsp; Registered DNS Name
+
+- &nbsp; Maven
+
+- &nbsp; JDK8
+
+- &nbsp; AWS CLI
+
+
