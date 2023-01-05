@@ -11,4 +11,7 @@
 
 - &nbsp; AWS CLI
 
+### Architecture on DataCenter:
+
+
 
