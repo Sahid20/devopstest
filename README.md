@@ -35,4 +35,17 @@
 - &nbsp; Next we will create vprofile-app-SG. We will open port 8080 to accept connections from vprofile-ELb-SG
 - &nbsp; Finally, we will create vprofile-backend-SG. WE need to open port 3306 for MySQL, 11211 for Memcached and 5672 for RabbitMQ server. We can check whcih ports needed fro aplication services to communicate each other from application.properties file under src/main/resources directory.We also need to open commucation AllTraffic from own SecGrp for backend services to communicate with each other.
 
+### Step-2: Create KeyPair to Connect EC2 instancesWe 
+- &nbsp; Now, I will create a Keypair to connect our instances via SSH.
+### Step-3: Provision Backend EC2 instances with UserData script
+### Step-4: Create Private Hosted Zone in Route53
+### Step-5: Provision Application EC2 instances with UserData script
+### Step-6: Create Artifact Locally with MAVEN
+### Step-7: Create S3 bucket using AWS CLI, copy artifact
+### Step-8: Download Artifact to Tomcat server from S3
+### Step-9: Setup LoadBalancer
+### Step-10: Create Route53 record for ELB endpoint
+### Step-11: Configure AutoScaling Group for Application Instances
+### Step-12: Clean-up
+
 
