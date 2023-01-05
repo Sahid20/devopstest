@@ -51,7 +51,7 @@ Inbound Rules
 ### Step-3: Provision Backend EC2 instances with UserData script
 #### DB Instance:
 - &nbsp;Create DB instance with below details.We will also add Inbound rule to vprofile-backend-SG for SSH on port 22 from MyIP to be able to connect our db instance via SSH.
-Name: vprofile-db01
+Name: vprofile-db01 <br>
 Project: vprofile
 AMI: Centos 7
 InstanceType: t2.micro
