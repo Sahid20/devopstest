@@ -13,5 +13,6 @@
 
 ### Architecture on DataCenter:
 
+![architecture_data_centre](https://user-images.githubusercontent.com/73986565/210881651-6abe39f1-a972-47ea-ac37-8e788ca82996.png)
 
 
