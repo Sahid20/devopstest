@@ -61,16 +61,77 @@ UserData: mysql.sh <br>
 ssh -i vprofile-prod-key.pem centos@<public_ip_of_instance> <br>
 sudo -i  <br>
 curl http://169.254.169.254/latest/user-data <br>
-systemctl status mariadb <br>
+systemctl status mariadb <br>Memcached Instance:
+#### Create Memcached instance with below details.
+Name: vprofile-mc01
+Project: vprofile
+AMI: Centos 7
+InstanceType: t2.micro
+SecGrp: vprofile-backend-SG
+UserData: memcache.sh
+Once our instance is ready, we can SSH into the server and check if userdata script is executed.We can also check status of memcache service and if it is listening on port 11211.
+ssh -i vprofile-prod-key.pem centos@<public_ip_of_instance>
+sudo su -
+curl http://169.254.169.254/latest/user-data
+systemctl status memcached.service
+ss -tunpl | grep 11211
+#### RabbitMQ Instance:
+Create RabbitMQ instance with below details.
+Name: vprofile-rmq01
+Project: vprofile
+AMI: Centos 7
+InstanceType: t2.micro
+SecGrp: vprofile-backend-SG
+UserData: rabbitmq.sh
+Once our instance is ready, we can SSH into the server and check if userdata script is executed.We can also check status of rabbitmq service.
+ssh -i vprofile-prod-key.pem centos@<public_ip_of_instance>
+sudo su -
+curl http://169.254.169.254/latest/user-data
+systemctl status rabbitmq-server
+Note: It may take some time to run userdata script after you connect to server. You can check the process ps -ef to see if the process start for service. If not wait sometime and check with systemctl status <service_name> command again
 
 ### Step-4: Create Private Hosted Zone in Route53
+Our backend stack is running. Next we will update Private IP of our backend services in Route53 Private DNS Zone.Lets note down Private IP addresses.
+rmq01 172.31.80.20
+db01 172.31.22.178
+mc01 172.31.87.132
+Create vprofile.in Private Hosted zone in Route53. we will pick Default VPC in N.Virginia region
+- &nbsp;Now we will create records for our backend services. The purpose of this activity is we will use these record names in our application.properties file. Even if IP address of the services, our application won't need to change the config file.
+Simple Routing -> Define Simple Record
+Value/Route traffic to: IP address or another value
+
 ### Step-5: Provision Application EC2 instances with UserData script
+- &nbsp;Clone the repository.
+
+Before we create our artifact, we need to do changes to our application.properties file under /src/main/resources directory for below lines.
+jdbc.url=jdbc:mysql://db01.vprofile.in:3306/accounts?useUnicode=true&
+
+memcached.active.host=mc01.vprofile.in
+
+rabbitmq.address=rmq01.vprofile.in
+We will go to vprofile-project root directory to the same level pom.xml exists. Then we will execute below command to create our artifact vprofile-v2.war:
+mvn install
+
 ### Step-6: Create Artifact Locally with MAVEN
+- &nbsp;We will upload our artifact to s3 bucket from AWS CLI and our Tomcat server will get the same artifact from s3 bucket.
+
+- &nbsp; We will create an IAM user for authentication to be used from AWS CLI.<br>
+
+name: vprofile-s3-admin<br>
+Access key - Programmatic access<br>
+Policy: s3FullAccess<br>
+
 ### Step-7: Create S3 bucket using AWS CLI, copy artifact
+- &nbsp;
 ### Step-8: Download Artifact to Tomcat server from S3
+- &nbsp;
 ### Step-9: Setup LoadBalancer
+- &nbsp;
 ### Step-10: Create Route53 record for ELB endpoint
+- &nbsp;
 ### Step-11: Configure AutoScaling Group for Application Instances
+- &nbsp;
 ### Step-12: Clean-up
+- &nbsp;
 
 
