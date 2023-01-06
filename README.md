@@ -101,6 +101,17 @@ Simple Routing -> Define Simple Record<br>
 Value/Route traffic to: IP address or another value
 
 ### Step-5: Provision Application EC2 instances with UserData script
+Create Tomcat instance with below details.We will also add Inbound rule to vprofile-app-SG for SSH on port 22 from MyIP to be able to connect our db instance via SSH.
+Name: vprofile-app01
+Project: vprofile
+AMI: Ubuntu 18.04
+InstanceType: t2.micro
+SecGrp: vprofile-app-SG
+UserData: tomcat_ubuntu.sh
+
+
+
+### Step-6: Create Artifact Locally with MAVEN
 - &nbsp;Clone the repository.
 
 Before we create our artifact, we need to do changes to our application.properties file under /src/main/resources directory for below lines.
@@ -112,7 +123,9 @@ rabbitmq.address=rmq01.vprofile.in<br>
 We will go to vprofile-project root directory to the same level pom.xml exists. Then we will execute below command to create our artifact vprofile-v2.war:
 mvn install
 
-### Step-6: Create Artifact Locally with MAVEN
+
+
+### Step-7: Create S3 bucket using AWS CLI, copy artifact
 - &nbsp;We will upload our artifact to s3 bucket from AWS CLI and our Tomcat server will get the same artifact from s3 bucket.
 
 - &nbsp; We will create an IAM user for authentication to be used from AWS CLI.<br>
@@ -124,7 +137,8 @@ Policy: s3FullAccess<br>
 - &nbsp;Go to target directory and copy the artifact to bucket with below command. Then verify by listing objects in the bucket
 - &nbsp;We can verify the same from AWS Console.
 
-### Step-7: Create S3 bucket using AWS CLI, copy artifact
+
+### Step-8: Download Artifact to Tomcat server from S3
 - &nbsp;In order to download our artifact onto Tomcat server, we need to create IAM role for Tomcat. Once role is created we will attach it to our app01 server.
 
 Type: EC2<br>
@@ -153,8 +167,10 @@ cat /var/lib/tomcat8/webapps/ROOT/WEB-INF/classes/application.properties<br>
 We can validate network connectivity from server using telnet.<br>
 apt install telnet<br>
 telnet db01.vprofile.in 3306<br>
-### Step-8: Download Artifact to Tomcat server from S3
-- &nbsp;Before creating LoadBalancer , first we need to create Target Group.<br>
+
+
+### Step-9: Setup LoadBalancer
+- &nbsp;- &nbsp;Before creating LoadBalancer , first we need to create Target Group.<br>
 Intances<br>
 Target Grp Name: vprofile-elb-TG<br>
 protocol-port: HTTP:8080<br>
@@ -170,13 +186,30 @@ Select all AZs<br>
 SecGrp: vprofile-elb-secGrp<br>
 Listeners: HTTP, HTTPS<br>
 Select the certificate for HTTPS<br>
-### Step-9: Setup LoadBalancer
-- &nbsp;
 ### Step-10: Create Route53 record for ELB endpoint
-- &nbsp;
+- &nbsp;We will create an A record with alias to ALB so that we can use our domain name to reach our application.Lets check our application using our DNS.
+- 
+ We can securely connect to our application!
+- 
 ### Step-11: Configure AutoScaling Group for Application Instances
-- &nbsp;
+- &nbsp;We will create an AMI from our App Instance.
+Next we will create a Launch template using the AMI created in above step for our ASG.
+Name: vprofile-app-LT
+AMI: vprofile-app-image
+InstanceType: t2.micro
+IAM Profile: vprofile-artifact-storage-role
+SecGrp: vprofile-app-SG
+KeyPair: vprofile-prod-key
+Our Launch template is ready, now we can create our ASG.
+Name: vprofile-app-ASG
+ELB healthcheck
+Add ELB
+Min:1
+Desired:2
+Max:4
+Target Tracking-CPU Utilization 50
+If we terminate any instances we will see ASG will create a new one using LT that we created.
 ### Step-12: Clean-up
-- &nbsp;
+- &nbsp;Delete all resources we created to avoid any charges from AWS.
 
 
