@@ -57,11 +57,11 @@ AMI: Centos 7 <br>
 InstanceType: t2.micro <br>
 SecGrp: vprofile-backend-SG <br>
 UserData: mysql.sh <br>
-- &nbsp;Once our instance is ready, we can SSH into the server and check if userdata script is executed.We can also check status of mariadb
-ssh -i vprofile-prod-key.pem centos@<public_ip_of_instance>
-sudo -i 
-curl http://169.254.169.254/latest/user-data
-systemctl status mariadb
+- &nbsp;Once our instance is ready, we can SSH into the server and check if userdata script is executed.We can also check status of mariadb <br>
+ssh -i vprofile-prod-key.pem centos@<public_ip_of_instance> <br>
+sudo -i  <br>
+curl http://169.254.169.254/latest/user-data <br>
+systemctl status mariadb <br>
 
 ### Step-4: Create Private Hosted Zone in Route53
 ### Step-5: Provision Application EC2 instances with UserData script
