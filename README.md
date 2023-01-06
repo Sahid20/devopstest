@@ -120,11 +120,56 @@ mvn install
 name: vprofile-s3-admin<br>
 Access key - Programmatic access<br>
 Policy: s3FullAccess<br>
+- &nbsp;Create bucket. Note: S3 buckets are global so the naming must be UNIQUE!
+- &nbsp;Go to target directory and copy the artifact to bucket with below command. Then verify by listing objects in the bucket
+- &nbsp;We can verify the same from AWS Console.
 
 ### Step-7: Create S3 bucket using AWS CLI, copy artifact
-- &nbsp;
+- &nbsp;In order to download our artifact onto Tomcat server, we need to create IAM role for Tomcat. Once role is created we will attach it to our app01 server.
+
+Type: EC2<br>
+Name: vprofile-artifact-storage-role<br>
+Policy: s3FullAccess<br>
+Before we login to our server, we need to add SSH access on port 22 to our vprofile-app-SG.<br>
+
+Then connect to app011 Ubuntu server.
+
+ssh -i "vprofile-prod-key.pem" ubuntu@<public_ip_of_server><br>
+sudo su -<br>
+systemctl status tomcat8<br>
+We will delete ROOT (where default tomcat app files stored) directory under /var/lib/tomcat8/webapps/. Before deleting it we need to stop Tomcat server.<br>
+cd /var/lib/tomcat8/webapps/<br>
+systemctl stop tomcat8<br>
+rm -rf ROOT<br>
+Next we will download our artifact from s3 using aws cli commands. First we need to install aws cli. We will initially download our artifact to /tmp directory, then we will copy it under /var/lib/tomcat8/webapps/ directory as ROOT.war. Since this is the default app directory, Tomcat will extract the compressed file.
+apt install awscli -y<br>
+aws s3 ls s3://vprofile-artifact-storage-rd<br>
+aws s3 cp s3://vprofile-artifact-storage-rd/vprofile-v2.war /tmp/vprofile-v2.war<br>
+cd /tmp<br>
+cp vprofile-v2.war /var/lib/tomcat8/webapps/ROOT.war<br>
+systemctl start tomcat8<br>
+We can also verify application.properties file has the latest changes.<br>
+cat /var/lib/tomcat8/webapps/ROOT/WEB-INF/classes/application.properties<br>
+We can validate network connectivity from server using telnet.<br>
+apt install telnet<br>
+telnet db01.vprofile.in 3306<br>
 ### Step-8: Download Artifact to Tomcat server from S3
-- &nbsp;
+- &nbsp;Before creating LoadBalancer , first we need to create Target Group.<br>
+Intances<br>
+Target Grp Name: vprofile-elb-TG<br>
+protocol-port: HTTP:8080<br>
+healtcheck path : /login<br>
+Advanced health check settings<br>
+Override: 8080<br>
+Healthy threshold: 3<br>
+available instance: app01 (Include as pending below)<br>
+- &nbsp;Now we will create our Load Balancer.<br>
+vprofile-prod-elb<br>
+Internet Facing<br>
+Select all AZs<br>
+SecGrp: vprofile-elb-secGrp<br>
+Listeners: HTTP, HTTPS<br>
+Select the certificate for HTTPS<br>
 ### Step-9: Setup LoadBalancer
 - &nbsp;
 ### Step-10: Create Route53 record for ELB endpoint
