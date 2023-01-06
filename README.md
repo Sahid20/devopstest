@@ -63,52 +63,52 @@ sudo -i  <br>
 curl http://169.254.169.254/latest/user-data <br>
 systemctl status mariadb <br>Memcached Instance:
 #### Create Memcached instance with below details.
-Name: vprofile-mc01
-Project: vprofile
-AMI: Centos 7
-InstanceType: t2.micro
-SecGrp: vprofile-backend-SG
-UserData: memcache.sh
-Once our instance is ready, we can SSH into the server and check if userdata script is executed.We can also check status of memcache service and if it is listening on port 11211.
-ssh -i vprofile-prod-key.pem centos@<public_ip_of_instance>
-sudo su -
-curl http://169.254.169.254/latest/user-data
-systemctl status memcached.service
-ss -tunpl | grep 11211
+Name: vprofile-mc01<br>
+Project: vprofile<br>
+AMI: Centos 7<br>
+InstanceType: t2.micro<br>
+SecGrp: vprofile-backend-SG<br>
+UserData: memcache.sh<br>
+Once our instance is ready, we can SSH into the server and check if userdata script is executed.We can also check status of memcache service and if it is listening on port 11211.<br>
+ssh -i vprofile-prod-key.pem centos@<public_ip_of_instance><br>
+sudo -i
+curl http://169.254.169.254/latest/user-data<br>
+systemctl status memcached.service<br>
+ss -tunpl | grep 11211<br>
 #### RabbitMQ Instance:
-Create RabbitMQ instance with below details.
-Name: vprofile-rmq01
-Project: vprofile
-AMI: Centos 7
-InstanceType: t2.micro
-SecGrp: vprofile-backend-SG
-UserData: rabbitmq.sh
+Create RabbitMQ instance with below details.<br>
+Name: vprofile-rmq01<br>
+Project: vprofile<br>
+AMI: Centos 7<br>
+InstanceType: t2.micro<br>
+SecGrp: vprofile-backend-SG<br>
+UserData: rabbitmq.sh<br>
 Once our instance is ready, we can SSH into the server and check if userdata script is executed.We can also check status of rabbitmq service.
-ssh -i vprofile-prod-key.pem centos@<public_ip_of_instance>
-sudo su -
-curl http://169.254.169.254/latest/user-data
-systemctl status rabbitmq-server
+ssh -i vprofile-prod-key.pem centos@<public_ip_of_instance><br>
+sudo -i<br>
+curl http://169.254.169.254/latest/user-data<br>
+systemctl status rabbitmq-server<br>
 Note: It may take some time to run userdata script after you connect to server. You can check the process ps -ef to see if the process start for service. If not wait sometime and check with systemctl status <service_name> command again
 
 ### Step-4: Create Private Hosted Zone in Route53
 Our backend stack is running. Next we will update Private IP of our backend services in Route53 Private DNS Zone.Lets note down Private IP addresses.
-rmq01 172.31.80.20
-db01 172.31.22.178
-mc01 172.31.87.132
+rmq01 172.31.80.20<br>
+db01 172.31.22.178<br>
+mc01 172.31.87.132<br>
 Create vprofile.in Private Hosted zone in Route53. we will pick Default VPC in N.Virginia region
-- &nbsp;Now we will create records for our backend services. The purpose of this activity is we will use these record names in our application.properties file. Even if IP address of the services, our application won't need to change the config file.
-Simple Routing -> Define Simple Record
+- &nbsp;Now we will create records for our backend services. The purpose of this activity is we will use these record names in our application.properties file. Even if IP address of the services, our application won't need to change the config file.<br>
+Simple Routing -> Define Simple Record<br>
 Value/Route traffic to: IP address or another value
 
 ### Step-5: Provision Application EC2 instances with UserData script
 - &nbsp;Clone the repository.
 
 Before we create our artifact, we need to do changes to our application.properties file under /src/main/resources directory for below lines.
-jdbc.url=jdbc:mysql://db01.vprofile.in:3306/accounts?useUnicode=true&
+jdbc.url=jdbc:mysql://db01.vprofile.in:3306/accounts?useUnicode=true&<br>
 
-memcached.active.host=mc01.vprofile.in
+memcached.active.host=mc01.vprofile.in<br>
 
-rabbitmq.address=rmq01.vprofile.in
+rabbitmq.address=rmq01.vprofile.in<br>
 We will go to vprofile-project root directory to the same level pom.xml exists. Then we will execute below command to create our artifact vprofile-v2.war:
 mvn install
 
